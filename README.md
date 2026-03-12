@@ -36,18 +36,18 @@ Segue o mapa visual de como os dados transitam no software, da API até o Relat�
 
 ```mermaid
 graph TD;
-    A[OpenWeatherMap API] --> B(api_client.py)
-    B --> C{data_structures.py}
+    A["OpenWeatherMap API"] --> B("api_client.py")
+    B --> C{"data_structures.py"}
     
-    C -->|Instancia Histórico| D[Lista (Vetor)]
-    D -->|Associa à Cidade| E[Dicionário (Hash)]
+    C -->|"Instancia Histórico"| D["Lista (Vetor)"]
+    D -->|"Associa à Cidade"| E["Dicionário (Hash)"]
     
-    E -. Busca Rápida O(1) .-> F[data_processor.py]
+    E -. "Busca Rápida O(1)" .-> F["data_processor.py"]
     
-    F -->|Cálculos: Média, Min, Max| G[Processamento]
+    F -->|"Cálculos: Média, Min, Max"| G["Processamento"]
     
-    G --> H[report_generator.py]
-    H -->|Entrega de Valor| I[(relatorio_clima.txt e .csv)]
+    G --> H["report_generator.py"]
+    H -->|"Entrega de Valor"| I[("relatorio_clima.txt e .csv")]
 ```
 
 ---
