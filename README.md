@@ -51,4 +51,4 @@ graph TD;
 ```
 
 ---
-*Projeto implementado com foco em clareza, modularidade e performance.*
+
