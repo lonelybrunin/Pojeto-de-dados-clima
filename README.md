@@ -1,84 +1,54 @@
-# 🌦️ App de Previsão Climática (Estrutura de Dados em Python)
+# 🌦️ App de Previsão Climática (Python)
 
 Projeto final para a disciplina de **Estrutura de Dados Aplicada ao Mundo Real**.
-Este projeto consome dados da [OpenWeatherMap API](https://openweathermap.org/api), armazena em estruturas de dados específicas (Dicionários Hash e Listas Dinâmicas), processa esses dados para extrair estatísticas (médias, máximas, mínimas, e ordenação) e gera um relatório estruturado em formato texto e CSV.
+O sistema consome dados climáticos reais simulados, armazena em Estruturas de Dados específicas e gera relatórios estatísticos (TXT e CSV).
 
 ---
 
 ## 🚀 Como Executar o Projeto
 
-### 1. Pré-Requisitos
-Certifique-se de ter o [Python](https://www.python.org/downloads/) (versão 3.6 ou superior) instalado em sua máquina. Opcionalmente, crie um ambiente virtual (venv).
-
-### 2. Instalação das Dependências
-O projeto utiliza a biblioteca `requests` para consumir a API. Instale-a via terminal:
+**1.** Certifique-se de ter o Python instalado.  
+**2.** Instale a biblioteca de requisições:
 ```bash
 pip install requests
 ```
-
-### 3. Rodando o Script
-O ponto de entrada do projeto é o aquivo `main.py`. Execute:
+**3.** Execute o arquivo principal da aplicação:
 ```bash
 python main.py
 ```
-
-### 4. Chave da API (API Key)
-Ao rodar o projeto pela primeira vez, ele solicitará uma **API Key** do OpenWeatherMap.
-* **Não tem uma chave?** Crie uma conta gratuita em [OpenWeatherMap Sign Up](https://home.openweathermap.org/users/sign_up), vá na aba "My API Keys", copie a chave gerada e cole no terminal quando solicitado. *(Obs: Novas chaves podem levar até 10 minutos para serem ativadas pelo serviço).*
+*(O sistema irá processar os dados de Belo Horizonte e gerar os relatórios na sua pasta automaticamente).*
 
 ---
 
-## 🧠 Arquitetura e Estruturas de Dados Escolhidas
+## 🧠 Arquitetura e Estruturas de Dados
 
-Conforme exigido pelos requisitos, este projeto foca na escolha consciente das **Estruturas de Dados**. A documentação das nossas escolhas se encontra nos arquivos fonte (ver `src/data_structures.py`), mas aqui está o resumo:
+Para cumprir os requisitos da disciplina, utilizamos as seguintes estruturas:
+* **Dicionários (Tabela Hash):** Para indexar as cidades com complexidade de busca **O(1)**.
+* **Listas (Vetor Dinâmico):** Para armazenar o histórico temporal e iterar sequencialmente para cálculo de médias e ordenações.
 
-### 1. Dicionários (Tabela Hash Nativa)
-* **Classe:** `DicionarioCidades`
-* **Por que?** O Dicionário em Python é suportado nativamente por uma Tabela Hash. Escolhemos essa estrutura para armazenar as cidades processadas porque ela permite uma busca em complexidade de tempo **O(1)**. Se quisermos saber instantaneamente a previsão do Rio de Janeiro, basta acessar a chave `dicionario["Rio de Janeiro"]` sem precisar iterar/percorrer outras cidades da lista.
-
-### 2. Listas (Vetor Dinâmico)
-* **Classe:** `ListaPrevisoes`
-* **Por que?** A API climática retorna previsões temporais em série (por exemplo, de 3 em 3 horas pelos próximos 5 dias). Para armazenar isso, criamos uma abstração em cima das Listas (Vetores). Vetores permitem acesso rápido e sequencial na memória e são ideais para quando precisamos percorrer todos os itens do dia para calcular médias de temperatura ou filtrar picos máximos e mínimos.
+> 📚 **Nota:** A justificativa técnica detalhada das escolhas de estruturas e do fluxo de dados encontra-se no arquivo `Documentacao_Tecnica_Projeto.docx` e nos comentários internos do código `src/data_structures.py`.
 
 ---
 
-## 🔄 Diagrama de Fluxo e Estruturas
+## 🔄 Fluxo de Dados
 
-> Um dos requisitos do projeto é apresentar o fluxo e diagrama de estruturas. Aqui está o mapa visual de como os dados transitam no nosso software, da *API* até a *Entrega de Valor*:
+Segue o mapa visual de como os dados transitam no software, da API até o Relatório:
 
 ```mermaid
 graph TD;
-    A[OpenWeatherMap API] -->|Requisicao GET HTTP via 'requests'| B(api_client.py)
-    B -->|Retorna JSON bruto| C{data_structures.py}
+    A[OpenWeatherMap API] --> B(api_client.py)
+    B --> C{data_structures.py}
     
-    C -->|Instancia| D[ListaPrevisoes]
-    D -->|O(1) Append| E[Armazena Historico de Dias e Horas]
-    E -->|Associa a Chave| F[DicionarioCidades]
+    C -->|Instancia Histórico| D[Lista (Vetor)]
+    D -->|Associa à Cidade| E[Dicionário (Hash)]
     
-    F -->|Indexa| G((Tabela Hash: 'Sao Paulo' -> ListaPrevisoes\n 'Rio' -> ListaPrevisoes ...))
+    E -. Busca Rápida O(1) .-> F[data_processor.py]
     
-    G -. Busca Rápida O(1) .-> H[data_processor.py]
+    F -->|Cálculos: Média, Min, Max| G[Processamento]
     
-    H -->|Algoritmo 1| I[Agrupar por Dia]
-    H -->|Algoritmo 2| J[Estatisticas Basicas (Média, Max, Min)]
-    H -->|Algoritmo 3| K[Ordencao (Cidades mais quentes via Timsort)]
-    
-    I --> L[report_generator.py]
-    J --> L
-    K --> L
-    
-    L -->|Entrega de Valor| M[(relatorio_clima.txt e .csv)]
+    G --> H[report_generator.py]
+    H -->|Entrega de Valor| I[(relatorio_clima.txt e .csv)]
 ```
 
 ---
-
-## 🛠️ Entregas e Funcionalidades Implementadas
-
-* **Consumo de API Real**: Tratamento de erros de conexão (códigos 401 e 404) e lógica de tentativas (Retry Logic) embutidos no cliente.
-* **Manipulação de Dados**:
-    * Busca instantânea por cidade.
-    * Ordenamento do objeto em memória para geração do "Ranking de Cidades Quentes".
-    * Agrupamento temporal com quebras de data.
-* **Entrega Concreta de Valor**: O final do processamento não apenas joga prints no terminal, mas cria artefatos concretos (`.csv` voltado a dados e `.txt` voltado à leitura humana).
-
-*(Fim do Arquivo)*
+*Projeto implementado com foco em clareza, modularidade e performance.*
